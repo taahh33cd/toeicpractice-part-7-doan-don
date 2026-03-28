@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Part 7 Practice - Single Passages</title>
+    <style>
+        /* CSS Giữ nguyên phong cách của bạn - Rất chuyên nghiệp! */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; height: 100vh; display: flex; flex-direction: column; }
+        header { background-color: #0056b3; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .submit-btn { background-color: #28a745; color: white; border: none; padding: 8px 20px; font-size: 1rem; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.2s; }
+        .submit-btn:hover { background-color: #218838; }
+        .submit-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        .left-pane { flex: 1; background: #fff; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; }
+        .passage-box { background: #fdfdfd; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
+        .passage-type { font-weight: bold; color: #0056b3; margin-bottom: 15px; font-size: 1.1rem; text-transform: uppercase; border-bottom: 2px solid #0056b3; display: inline-block; padding-bottom: 5px;}
+        .right-pane { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; }
+        .question-block { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.3s; }
+        .question-block.active { border-color: #0056b3; box-shadow: 0 0 8px rgba(0,86,179,0.2); }
+        .question-text { font-weight: 600; margin-bottom: 10px; font-size: 1.05rem; }
+        .option-label { display: block; padding: 8px 12px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .option-label:hover { background-color: #e9ecef; }
+        .option-label input { margin-right: 10px; }
+        .option-label.selected { border-color: #0056b3; background-color: #e3f2fd; }
+        .option-label.correct { background-color: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }
+        .option-label.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .explanation { margin-top: 10px; padding: 10px; background: #fff3cd; color: #856404; border-left: 4px solid #ffeeba; display: none; font-size: 0.9rem; }
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 0.8rem; font-weight: bold; margin-left: 10px; }
+        .status-correct { background: #28a745; color: white; }
+        .status-incorrect { background: #dc3545; color: white; }
+        .status-unanswered { background: #6c757d; color: white; }
+        footer { background: #fff; padding: 10px 20px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .nav-buttons button { padding: 8px 15px; border: 1px solid #0056b3; background: white; color: #0056b3; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .nav-buttons button:hover { background: #0056b3; color: white; }
+        .nav-buttons button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; background: white; }
+        .question-navigator { display: flex; gap: 5px; flex-wrap: wrap; max-width: 60%; justify-content: center; }
+        .nav-dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc; background: white; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; cursor: pointer; }
+        .nav-dot.answered { background: #0056b3; color: white; border-color: #0056b3; }
+        .nav-dot.correct { background: #28a745; color: white; border-color: #28a745; }
+        .nav-dot.incorrect { background: #dc3545; color: white; border-color: #dc3545; }
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .left-pane, .right-pane { border-right: none; border-bottom: 2px solid #ddd; }
+            .question-navigator { max-width: 100%; margin-top: 10px; }
+            footer { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>TOEIC Part 7 - Single Passages</h2>
+        <div>
+            <span id="score-display" style="margin-right: 15px; font-weight: bold; font-size: 1.2rem;"></span>
+            <button class="submit-btn" id="submit-btn" onclick="submitExam()">Nộp bài</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="left-pane" id="passage-pane"></div>
+        <div class="right-pane" id="question-pane"></div>
+    </div>
+
+    <footer>
+        <div class="nav-buttons">
+            <button id="btn-prev" onclick="changePassage(-1)">&#8592; Previous Passage</button>
+        </div>
+        <div class="question-navigator" id="navigator"></div>
+        <div class="nav-buttons">
+            <button id="btn-next" onclick="changePassage(1)">Next Passage &#8594;</button>
+        </div>
+    </footer>
+
+    <script src="data_single.js"></script>
+
+    <script>
+        let processedData = []; 
+        let currentPassageIndex = 0; 
+        let userAnswers = {}; 
+        let isSubmitted = false;
+
+        function initApp() {
+            // ĐIỂM SỬA 2: Kiểm tra linh hoạt cả 2 tên biến để không bị trắng màn hình
+            let sourceData = null;
+            if (typeof rawExamDataSingle !== 'undefined') {
+                sourceData = rawExamDataSingle;
+            } else if (typeof rawExamData !== 'undefined') {
+                sourceData = rawExamData;
+            }
+
+            if (!sourceData) {
+                alert("LỖI: Không tìm thấy dữ liệu! Hãy đảm bảo bạn đã lưu file data_single.js cùng thư mục với file HTML này.");
+                return;
+            }
+
+            // Xử lý dữ liệu
+            let shuffledPassages = [...sourceData]
+            let globalQuestionId = 1;
+            processedData = shuffledPassages.map((passage, pIndex) => {
+                let processedQuestions = passage.questions.map(q => {
+                    return { ...q, globalId: globalQuestionId++, passageIndex: pIndex };
+                });
+                return { ...passage, questions: processedQuestions };
+            });
+
+            renderNavigator();
+            renderLayout();
+        }
+
+        function renderLayout() {
+            const passagePane = document.getElementById('passage-pane');
+            const questionPane = document.getElementById('question-pane');
+            const currentData = processedData[currentPassageIndex];
+
+            let textsHtml = currentData.texts.map(text => `<div class="passage-box">${text}</div>`).join('');
+            passagePane.innerHTML = `
+                <div class="passage-type">${currentData.type} (Questions ${currentData.questions[0].globalId} - ${currentData.questions[currentData.questions.length-1].globalId})</div>
+                ${textsHtml}
+            `;
+
+            let questionsHtml = currentData.questions.map(q => {
+                let optionsHtml = ['A', 'B', 'C', 'D'].map(opt => {
+                    let isChecked = userAnswers[q.globalId] === opt ? "checked" : "";
+                    let disabled = isSubmitted ? "disabled" : "";
+                    let labelClass = "option-label";
+                    if (isChecked) labelClass += " selected";
+                    if (isSubmitted) {
+                        if (opt === q.correct) labelClass += " correct";
+                        else if (isChecked && opt !== q.correct) labelClass += " incorrect";
+                    }
+                    return `
+                        <label class="${labelClass}" id="label-${q.globalId}-${opt}">
+                            <input type="radio" name="q-${q.globalId}" value="${opt}" ${isChecked} ${disabled} onchange="handleAnswerSelect(${q.globalId}, '${opt}')">
+                            <b>${opt}.</b> ${q.options[opt]}
+                        </label>
+                    `;
+                }).join('');
+
+                let statusHtml = "";
+                let explanationHtml = "";
+                if (isSubmitted) {
+                    let userAns = userAnswers[q.globalId];
+                    if (!userAns) statusHtml = `<span class="status-badge status-unanswered">Not Answered</span>`;
+                    else if (userAns === q.correct) statusHtml = `<span class="status-badge status-correct">Correct</span>`;
+                    else statusHtml = `<span class="status-badge status-incorrect">Incorrect</span>`;
+
+                    explanationHtml = `
+                        <div class="explanation" style="display: block;">
+                            <b>Đáp án đúng: ${q.correct}</b><br>
+                            <i>Giải thích:</i> ${q.explanation}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="question-block" id="qblock-${q.globalId}" onclick="highlightQuestion(${q.globalId})">
+                        <div class="question-text">Question ${q.globalId}: ${q.text} ${statusHtml}</div>
+                        <div class="options">
+                            ${optionsHtml}
+                        </div>
+                        ${explanationHtml}
+                    </div>
+                `;
+            }).join('');
+            
+            questionPane.innerHTML = questionsHtml;
+            document.getElementById('btn-prev').disabled = (currentPassageIndex === 0);
+            document.getElementById('btn-next').disabled = (currentPassageIndex === processedData.length - 1);
+        }
+
+        function renderNavigator() {
+            const navContainer = document.getElementById('navigator');
+            let html = '';
+            processedData.forEach(passage => {
+                passage.questions.forEach(q => {
+                    let classes = "nav-dot";
+                    if (userAnswers[q.globalId]) classes += " answered";
+                    if (isSubmitted) {
+                        if (!userAnswers[q.globalId]) classes += " incorrect"; 
+                        else if (userAnswers[q.globalId] === q.correct) classes += " correct";
+                        else classes += " incorrect";
+                    }
+                    html += `<div class="${classes}" id="nav-dot-${q.globalId}" onclick="jumpToQuestion(${q.passageIndex}, ${q.globalId})">${q.globalId}</div>`;
+                });
+            });
+            navContainer.innerHTML = html;
+        }
+
+        function handleAnswerSelect(qId, selectedOpt) {
+            if (isSubmitted) return;
+            userAnswers[qId] = selectedOpt; 
+            let qBlock = document.getElementById(`qblock-${qId}`);
+            let labels = qBlock.querySelectorAll('.option-label');
+            labels.forEach(l => l.classList.remove('selected'));
+            document.getElementById(`label-${qId}-${selectedOpt}`).classList.add('selected');
+            document.getElementById(`nav-dot-${qId}`).classList.add('answered');
+        }
+
+        function changePassage(step) {
+            currentPassageIndex += step;
+            renderLayout();
+            document.getElementById('passage-pane').scrollTop = 0;
+            document.getElementById('question-pane').scrollTop = 0;
+        }
+
+        function jumpToQuestion(pIndex, qId) {
+            if (currentPassageIndex !== pIndex) {
+                currentPassageIndex = pIndex;
+                renderLayout();
+            }
+            highlightQuestion(qId);
+            document.getElementById(`qblock-${qId}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function highlightQuestion(qId) {
+            document.querySelectorAll('.question-block').forEach(b => b.classList.remove('active'));
+            const block = document.getElementById(`qblock-${qId}`);
+            if(block) block.classList.add('active');
+        }
+
+        function submitExam() {
+            if (isSubmitted) return;
+            let confirmSubmit = confirm("Bạn có muốn nộp bài để xem đáp án không?");
+            if (!confirmSubmit) return;
+            isSubmitted = true;
+            document.getElementById('submit-btn').disabled = true;
+            let correctCount = 0;
+            let totalQuestions = 0;
+            processedData.forEach(passage => {
+                passage.questions.forEach(q => {
+                    totalQuestions++;
+                    if (userAnswers[q.globalId] === q.correct) {
+                        correctCount++;
+                    }
+                });
+            });
+            document.getElementById('score-display').innerText = `Kết quả: ${correctCount} / ${totalQuestions}`;
+            renderLayout();
+            renderNavigator();
+            window.scrollTo(0,0);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
