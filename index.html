@@ -5,41 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TOEIC Part 7 Practice - Single Passages</title>
     <style>
-        /* CSS Giữ nguyên phong cách của bạn - Rất chuyên nghiệp! */
+        /* CSS Reset & Cơ bản */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f6f9; color: #333; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Header */
         header { background-color: #0056b3; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
         .submit-btn { background-color: #28a745; color: white; border: none; padding: 8px 20px; font-size: 1rem; cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.2s; }
         .submit-btn:hover { background-color: #218838; }
         .submit-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
+
+        /* Container chính */
         .main-container { display: flex; flex: 1; overflow: hidden; }
-        .left-pane { flex: 1; background: #fff; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; }
+
+        /* Khu vực bên trái: Đoạn văn */
+        .left-pane { flex: 1; background: #fff; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; position: relative; }
+        
+        /* --- THÊM MỚI: CSS CHO THANH CÔNG CỤ ZOOM --- */
+        .zoom-controls { position: sticky; top: -20px; background: rgba(255, 255, 255, 0.95); padding: 10px 0; display: flex; justify-content: flex-end; gap: 8px; z-index: 5; border-bottom: 1px solid #eee; margin-bottom: 15px; }
+        .zoom-btn { padding: 4px 12px; font-size: 1rem; font-weight: bold; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 4px; color: #333; transition: 0.2s; }
+        .zoom-btn:hover { background: #e9ecef; border-color: #adb5bd; }
+        #passage-pane { transition: font-size 0.2s ease-in-out; }
+        /* --------------------------------------------- */
+
         .passage-box { background: #fdfdfd; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
         .passage-type { font-weight: bold; color: #0056b3; margin-bottom: 15px; font-size: 1.1rem; text-transform: uppercase; border-bottom: 2px solid #0056b3; display: inline-block; padding-bottom: 5px;}
+        
+        /* Khu vực bên phải: Câu hỏi */
         .right-pane { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; }
         .question-block { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.3s; }
         .question-block.active { border-color: #0056b3; box-shadow: 0 0 8px rgba(0,86,179,0.2); }
         .question-text { font-weight: 600; margin-bottom: 10px; font-size: 1.05rem; }
+        
+        /* Các lựa chọn đáp án */
         .option-label { display: block; padding: 8px 12px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .option-label:hover { background-color: #e9ecef; }
         .option-label input { margin-right: 10px; }
+        
+        /* Trạng thái sau khi nộp */
         .option-label.selected { border-color: #0056b3; background-color: #e3f2fd; }
         .option-label.correct { background-color: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }
         .option-label.incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
         .explanation { margin-top: 10px; padding: 10px; background: #fff3cd; color: #856404; border-left: 4px solid #ffeeba; display: none; font-size: 0.9rem; }
         .status-badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 0.8rem; font-weight: bold; margin-left: 10px; }
         .status-correct { background: #28a745; color: white; }
         .status-incorrect { background: #dc3545; color: white; }
         .status-unanswered { background: #6c757d; color: white; }
+
+        /* Footer: Điều hướng */
         footer { background: #fff; padding: 10px 20px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
         .nav-buttons button { padding: 8px 15px; border: 1px solid #0056b3; background: white; color: #0056b3; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .nav-buttons button:hover { background: #0056b3; color: white; }
         .nav-buttons button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; background: white; }
+        
+        /* Question Navigator */
         .question-navigator { display: flex; gap: 5px; flex-wrap: wrap; max-width: 60%; justify-content: center; }
         .nav-dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc; background: white; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; cursor: pointer; }
         .nav-dot.answered { background: #0056b3; color: white; border-color: #0056b3; }
         .nav-dot.correct { background: #28a745; color: white; border-color: #28a745; }
         .nav-dot.incorrect { background: #dc3545; color: white; border-color: #dc3545; }
+
+        /* Responsive cho Mobile */
         @media (max-width: 768px) {
             .main-container { flex-direction: column; }
             .left-pane, .right-pane { border-right: none; border-bottom: 2px solid #ddd; }
@@ -59,7 +86,14 @@
     </header>
 
     <div class="main-container">
-        <div class="left-pane" id="passage-pane"></div>
+        <div class="left-pane">
+            <div class="zoom-controls">
+                <span style="font-size: 0.9rem; color: #666; margin-right: auto; line-height: 28px; font-weight: bold;">Cỡ chữ bài đọc:</span>
+                <button class="zoom-btn" onclick="changeZoom(0.1)" title="Phóng to">A+</button>
+                <button class="zoom-btn" onclick="changeZoom(-0.1)" title="Thu nhỏ">A-</button>
+            </div>
+            <div id="passage-pane"></div>
+        </div>
         <div class="right-pane" id="question-pane"></div>
     </div>
 
@@ -81,8 +115,10 @@
         let userAnswers = {}; 
         let isSubmitted = false;
 
+        // Biến quản lý mức độ Zoom
+        let currentZoomLevel = 1;
+
         function initApp() {
-            // ĐIỂM SỬA 2: Kiểm tra linh hoạt cả 2 tên biến để không bị trắng màn hình
             let sourceData = null;
             if (typeof rawExamDataSingle !== 'undefined') {
                 sourceData = rawExamDataSingle;
@@ -95,7 +131,7 @@
                 return;
             }
 
-            // Xử lý dữ liệu
+            // Giữ nguyên thứ tự không random
             let shuffledPassages = [...sourceData]
             let globalQuestionId = 1;
             processedData = shuffledPassages.map((passage, pIndex) => {
@@ -109,6 +145,14 @@
             renderLayout();
         }
 
+        // Hàm xử lý thu phóng bài đọc
+        function changeZoom(step) {
+            currentZoomLevel += step;
+            if (currentZoomLevel < 0.8) currentZoomLevel = 0.8;
+            if (currentZoomLevel > 2.0) currentZoomLevel = 2.0;
+            document.getElementById('passage-pane').style.fontSize = currentZoomLevel + 'rem';
+        }
+
         function renderLayout() {
             const passagePane = document.getElementById('passage-pane');
             const questionPane = document.getElementById('question-pane');
@@ -119,6 +163,9 @@
                 <div class="passage-type">${currentData.type} (Questions ${currentData.questions[0].globalId} - ${currentData.questions[currentData.questions.length-1].globalId})</div>
                 ${textsHtml}
             `;
+
+            // Giữ nguyên mức Zoom hiện tại khi chuyển bài
+            passagePane.style.fontSize = currentZoomLevel + 'rem';
 
             let questionsHtml = currentData.questions.map(q => {
                 let optionsHtml = ['A', 'B', 'C', 'D'].map(opt => {
@@ -201,7 +248,7 @@
         function changePassage(step) {
             currentPassageIndex += step;
             renderLayout();
-            document.getElementById('passage-pane').scrollTop = 0;
+            document.querySelector('.left-pane').scrollTop = 0;
             document.getElementById('question-pane').scrollTop = 0;
         }
 
